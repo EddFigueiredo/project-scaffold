@@ -8,8 +8,23 @@ var ExtractPlugin = new ExtractTextPlugin({
 	filename: 'main.css'
 });
 
+var HotModule = new webpack.HotModuleReplacementPlugin();
+
+var Plugins = new webpack.ProvidePlugin({
+
+});
+
 module.exports = {
 	entry: './src/js/app.js',
+	plugins: [
+		ExtractPlugin,
+		HotModule,
+		Plugins,
+		new HtmlWebpackPlugin({
+			template: 'src/index.html'
+		}),
+		new CleanWebpackPlugin(['dist']),
+	],
 	output: {
 		path: path.resolve(__dirname, 'dist'),
 		filename: 'bundle.js'
@@ -52,14 +67,13 @@ module.exports = {
 			}
 		]
 	},
-	plugins: [
-		ExtractPlugin,
-		new webpack.ProvidePlugin({
-
-		}),
-		new HtmlWebpackPlugin({
-			template: 'src/index.html'
-		}),
-		new CleanWebpackPlugin(['dist'])
-	]
+	devServer: {
+		contentBase: path.join(__dirname, 'dist'),
+		compress: true,
+		inline: true,
+		port: 8080,
+		hot: true,
+		watchContentBase: true,
+		watchOptions: { poll: 1000 },
+	}
 };
