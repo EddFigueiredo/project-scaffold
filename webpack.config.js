@@ -3,31 +3,38 @@ var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var CleanWebpackPlugin = require('clean-webpack-plugin');
+var Bootstrap = require('./webpack.bootstrap.config');
+
+var isProd = process.env.NODE_ENV === 'production';
+var bootstrapConfig = isProd ? Bootstrap.prod : Bootstrap.dev
 
 var ExtractPlugin = new ExtractTextPlugin({
 	filename: 'main.css'
 });
 
-var HotModule = new webpack.HotModuleReplacementPlugin();
+var HtmlPlugin = new HtmlWebpackPlugin({
+	template: 'src/index.html'
+});
 
 var Plugins = new webpack.ProvidePlugin({
-
+	$: 'jquery',
+	jQuery: 'jquery'
 });
 
 module.exports = {
-	entry: './src/js/app.js',
+	entry: {
+		app: './src/js/app.js',
+		bootstrap: bootstrapConfig
+	},
 	plugins: [
 		ExtractPlugin,
-		HotModule,
+		HtmlPlugin,
 		Plugins,
-		new HtmlWebpackPlugin({
-			template: 'src/index.html'
-		}),
 		new CleanWebpackPlugin(['dist']),
 	],
 	output: {
 		path: path.resolve(__dirname, 'dist'),
-		filename: 'bundle.js'
+		filename: '[name].js',
 	},
 	module: {
 		rules: [
@@ -64,16 +71,20 @@ module.exports = {
 						}
 					}
 				]
+			},
+			{
+				test: /\.(woff2?|svg)$/,
+				loader: 'url-loader?limit=10000'
+			},
+			{
+				test: /\.(ttf|eot)$/,
+				loader: 'file-loader'
 			}
 		]
 	},
 	devServer: {
 		contentBase: path.join(__dirname, 'dist'),
-		compress: true,
 		inline: true,
-		port: 8080,
-		hot: true,
-		watchContentBase: true,
-		watchOptions: { poll: 1000 },
+		port: 8080
 	}
 };
